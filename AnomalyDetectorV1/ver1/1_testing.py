@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import os
 
-
-model = tf.keras.models.load_model('../ver1/ver1.keras')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, 'ver1.keras')
+model = tf.keras.models.load_model(model_path)
 
 #(must be exactly 60 rows)
-test_df = pd.read_csv("/mnt/c/Users/nut/AnomalyDetectorModel/AnomalyDetectorV1/ANOMALY.csv")
+test_df_path = os.path.join(BASE_DIR, '..', 'ANOMALY.csv')
+test_df = pd.read_csv(test_df_path)
 test_df = test_df.drop(columns=["timestamp_ms", "timestamp_iso"])
 data = test_df.values.astype(np.float32)
 

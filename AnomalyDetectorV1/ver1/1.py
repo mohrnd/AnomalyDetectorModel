@@ -2,14 +2,18 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
+import os
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 WINDOW_SIZE = 60  # 2 seconds if ~30Hz
 THRESHOLD_STD_MULTIPLIER = 3  
 EPOCHS = 15
 BATCH_SIZE = 32
-
-df = pd.read_csv("/mnt/c/Users/nut/CudaTensorflow/AnomalyDetectorV1/modbus_log_20250710_101858_10ms.csv")
+df_path = os.path.join(BASE_DIR, '..','modbus_log_20250710_101858_10ms.csv')
+df = pd.read_csv(df_path)
 df = df.drop(columns=["timestamp_ms", "timestamp_iso"])
 data = df.values.astype(np.float32)  
 
