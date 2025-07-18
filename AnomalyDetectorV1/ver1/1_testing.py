@@ -4,10 +4,20 @@ import pandas as pd
 import numpy as np
 import random
 
-def inject_binary_flip_errors(csv_path, n_errors=100):
-
-    df = pd.read_csv(csv_path)
+def create_random_window(training_data_csv_path,window_size):
+    df = pd.read_csv(training_data_csv_path)
     data = df.to_numpy()
+    n_rows, n_cols = data.shape
+    chosen_row = random.randint(0, n_rows - window_size)
+    window = data[chosen_row:chosen_row + window_size]
+    window_df = pd.DataFrame(window, columns=df.columns)
+    return window_df
+
+def inject_binary_flip_errors(training_data_csv_path,window_size=60, n_errors=100):
+    # Select and initialise a random window from the training data
+    window_df = create_random_window(training_data_csv_path, window_size)
+
+    data = window_df.to_numpy()
     
     n_rows, n_cols = data.shape
     error_locations = set()
@@ -24,27 +34,16 @@ def inject_binary_flip_errors(csv_path, n_errors=100):
                 data[row, col] = 0
                 error_locations.add((row + 2, col + 1))
 
-    modified_df = pd.DataFrame(data, columns=df.columns)
+    infected_df = pd.DataFrame(data, columns=window_df.columns)
 
- 
-    modified_df.to_csv(csv_path, index=False)
-
-    return modified_df, np.array(list(error_locations))
+    return infected_df, np.array(list(error_locations))
 '''
 Note:  [ 0 18] => [ 2 19]
 '''
-def PredictionBenchmark(n_errors=10, detect_thresh=0.9999):
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    test_df_path = os.path.join(BASE_DIR, '..', 'LiveAnomalyEdition.csv')
-    mod_df, error_coords = inject_binary_flip_errors(test_df_path, n_errors=n_errors)
-    # print("Injected binary flips at:\n", error_coords)
-
-    model_path = os.path.join(BASE_DIR, 'ver1.keras')
-    model = tf.keras.models.load_model(model_path)
-
-    # #(must be exactly 60 rows)
-    test_df = pd.read_csv(test_df_path)
-    test_df = test_df.drop(columns=["timestamp_ms", "timestamp_iso"])
+def PredictionBenchmark(model,training_data_csv_path,window_size=60,n_errors=10, detect_thresh=0.9999):
+    
+    infected_df, error_coords = inject_binary_flip_errors(training_data_csv_path,window_size, n_errors)
+    test_df = infected_df.drop(columns=["timestamp_ms", "timestamp_iso"])
     data = test_df.values.astype(np.float32)
 
     assert data.shape[0] == 60, "CSV must have exactly 60 rows (2 seconds of data)."
@@ -73,12 +72,6 @@ def PredictionBenchmark(n_errors=10, detect_thresh=0.9999):
                 
     # else:
     #     print("No reconstruction errors detected\n")
-
-    print("Resetting the csv file...")
-    original_df_path = os.path.join(BASE_DIR, '..', 'LiveAnomalyEditionOriginal.csv')
-    df = pd.read_csv(original_df_path)
-    df.to_csv(test_df_path, index=False)
-    
     
     correct_detections = 0
     false_positives = 0
@@ -105,8 +98,12 @@ n_errors = 20
 n_cycles = 100
 detectionThreshold = 0.9999
 Results = []
-for i in range(0, n_cycles ):    
-    correct_detections, false_positives = PredictionBenchmark(n_errors=n_errors, detect_thresh=detectionThreshold)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+training_data_csv_path = os.path.join(BASE_DIR, '..', 'modbus_log_20250710_101858_10ms.csv')
+model_path = os.path.join(BASE_DIR, 'ver1.keras')
+model = tf.keras.models.load_model(model_path)
+for i in range(0, n_cycles):    
+    correct_detections, false_positives = PredictionBenchmark(model,training_data_csv_path,window_size=60,n_errors=10, detect_thresh=0.9999)
     print(f"Cycle {i}: {correct_detections} correct detections")
     Results.append(correct_detections)
     TotalErrors += n_errors
