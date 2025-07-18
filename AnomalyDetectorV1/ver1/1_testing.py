@@ -1,8 +1,5 @@
-import numpy as np
-import pandas as pd
 import tensorflow as tf
 import os
-import random
 import pandas as pd
 import numpy as np
 import random
@@ -60,7 +57,6 @@ def PredictionBenchmark(n_errors=10, detect_thresh=0.9999):
     #total error 
     print(f"\nTotal reconstruction error: {mean_error:.6f}\n")
 
-
     row_col_errors = [
         (row, col, error_vector[row, col])
         for row in range(error_vector.shape[0])
@@ -85,30 +81,49 @@ def PredictionBenchmark(n_errors=10, detect_thresh=0.9999):
     
     
     correct_detections = 0
+    false_positives = 0
+    matched_errors = set()
+    
     for r, c, err in row_col_errors:
         if err > detect_thresh:
             adjusted_row = r + 2
             adjusted_col = c + 3
-            if [adjusted_row, adjusted_col] in error_coords.tolist():
+            key = (adjusted_row, adjusted_col)
+    
+            if key in map(tuple, error_coords) and key not in matched_errors:
                 correct_detections += 1
-    
-    return correct_detections
-    
+                matched_errors.add(key)
+            elif key not in map(tuple, error_coords):
+                false_positives += 1
+
+    return correct_detections, false_positives
+
 TotalErrors = 0
 TotalCorrectDetections = 0
-n_errors = 10
-detectionThreshold = 0.999
+TotalFalsePositives = 0
+n_errors = 20
+n_cycles = 100
+detectionThreshold = 0.9999
 Results = []
-for i in range(0, 100):    
-    correct_detections = PredictionBenchmark(n_errors=n_errors, detect_thresh=detectionThreshold)
+for i in range(0, n_cycles ):    
+    correct_detections, false_positives = PredictionBenchmark(n_errors=n_errors, detect_thresh=detectionThreshold)
     print(f"Cycle {i}: {correct_detections} correct detections")
     Results.append(correct_detections)
     TotalErrors += n_errors
     TotalCorrectDetections += correct_detections
+    TotalFalsePositives += false_positives
 
-print(f"Detection threshold: {detectionThreshold}")
+precision = TotalCorrectDetections / (TotalCorrectDetections + TotalFalsePositives) if (TotalCorrectDetections + TotalFalsePositives) > 0 else 0
+recall = TotalCorrectDetections / TotalErrors if TotalErrors > 0 else 0
+f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+print(f"Detection threshold used: {detectionThreshold}")
 print(f"Total Errors inserted: {TotalErrors}")
-print(f"Total correct detections: {TotalCorrectDetections}")
+print(f"Total correct detections (True Positives): {TotalCorrectDetections}")
+print(f"Total false positives: {TotalFalsePositives}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall: {recall:.4f}")
+print(f"F1 Score: {f1_score:.4f}")
 print(Results)
 
 
