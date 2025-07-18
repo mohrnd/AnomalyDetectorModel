@@ -96,10 +96,10 @@ TotalCorrectDetections = 0
 TotalFalsePositives = 0
 n_errors = 20
 n_cycles = 100
-detectionThreshold = 0.9999
+detectionThreshold = 0.999
 Results = []
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-training_data_csv_path = os.path.join(BASE_DIR, '..', 'modbus_log_20250710_101858_10ms.csv')
+training_data_csv_path = os.path.join(BASE_DIR, '..', 'testing_data.csv')
 model_path = os.path.join(BASE_DIR, 'ver1.keras')
 model = tf.keras.models.load_model(model_path)
 for i in range(0, n_cycles):    

@@ -10,9 +10,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 WINDOW_SIZE = 60  # 2 seconds if ~30Hz
 THRESHOLD_STD_MULTIPLIER = 3  
-EPOCHS = 15
+EPOCHS = 20
 BATCH_SIZE = 32
-df_path = os.path.join(BASE_DIR, '..','modbus_log_20250710_101858_10ms.csv')
+df_path = os.path.join(BASE_DIR, '..','training_data.csv')
 df = pd.read_csv(df_path)
 df = df.drop(columns=["timestamp_ms", "timestamp_iso"])
 data = df.values.astype(np.float32)  
@@ -35,9 +35,9 @@ print("\ninput dim: ", input_dim, "\n") # 1620 = 60 samples * 27 sensors/actuato
 
 model = tf.keras.Sequential([
     tf.keras.layers.Input(shape=(input_dim,)),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(64, activation='relu'),
-    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dense(256, activation='relu'),
     tf.keras.layers.Dense(input_dim, activation='sigmoid')
 ])
 
