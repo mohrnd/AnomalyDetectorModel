@@ -28,7 +28,7 @@ X = create_windows(data, WINDOW_SIZE)
 
 
 X_train, X_val = train_test_split(X, test_size=0.1, random_state=42)
-
+'''This is wrong, it breaks the continuity of the sample data, EDIT THIS SO YOU SPLIT TRAINING DATA INTO EVEN 2 SECOND WINDOWS'''
 
 input_dim = X.shape[1]
 print("\ninput dim: ", input_dim, "\n") # 1620 = 60 samples * 27 sensors/actuators
