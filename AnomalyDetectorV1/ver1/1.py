@@ -9,8 +9,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 WINDOW_SIZE = 60  # 2 seconds if ~30Hz
-THRESHOLD_STD_MULTIPLIER = 3  
-EPOCHS = 20
+THRESHOLD_STD_MULTIPLIER = 2
+EPOCHS = 5
 BATCH_SIZE = 32
 df_path = os.path.join(BASE_DIR, '..','training_data.csv')
 df = pd.read_csv(df_path)
@@ -27,8 +27,17 @@ def create_windows(data, window_size):
 X = create_windows(data, WINDOW_SIZE)
 
 
+<<<<<<< HEAD
 X_train, X_val = train_test_split(X, test_size=0.1, random_state=42)
 '''This is wrong, it breaks the continuity of the sample data, EDIT THIS SO YOU SPLIT TRAINING DATA INTO EVEN 2 SECOND WINDOWS'''
+=======
+num_windows = X.shape[0]
+split_idx = int(num_windows * 0.9)
+
+X_train = X[:split_idx]
+X_val = X[split_idx:]
+
+>>>>>>> e50feb0 (fix)
 
 input_dim = X.shape[1]
 print("\ninput dim: ", input_dim, "\n") # 1620 = 60 samples * 27 sensors/actuators
