@@ -1,13 +1,14 @@
+import os
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
 import tensorflow as tf
 import tensorflow_gnn as tfgnn
 import numpy as np
 
-# Custom convolution layer - defined first before use
+# https://blog.tensorflow.org/2021/11/introducing-tensorflow-gnn.html
 class WeightedSumConvolution(tf.keras.layers.Layer):
     """Weighted sum of source nodes states."""
 
-    def call(self, graph: tfgnn.GraphTensor,
-             edge_set_name: tfgnn.EdgeSetName) -> tfgnn.Field:
+    def call(self, graph: tfgnn.GraphTensor, edge_set_name: tfgnn.EdgeSetName) -> tfgnn.Field:
         messages = tfgnn.broadcast_node_to_edges(
             graph,
             edge_set_name,
@@ -26,7 +27,6 @@ class WeightedSumConvolution(tf.keras.layers.Layer):
 # Model hyper-parameters
 h_dims = {'user': 256, 'movie': 64, 'genre': 128}
 
-# Model builder initialization
 gnn = tfgnn.keras.ConvGNNBuilder(
     lambda edge_set_name: WeightedSumConvolution(),
     lambda node_set_name: tfgnn.keras.layers.NextStateFromConcat(
