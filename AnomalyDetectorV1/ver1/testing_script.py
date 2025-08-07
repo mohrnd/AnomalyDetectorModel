@@ -122,7 +122,3 @@ print(f"Precision: {precision:.4f}")
 print(f"Recall: {recall:.4f}")
 print(f"F1 Score: {f1_score:.4f}")
 print(Results)
-
-
-    
-    
