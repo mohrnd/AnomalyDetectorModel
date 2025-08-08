@@ -95,7 +95,7 @@ TotalErrors = 0
 TotalCorrectDetections = 0
 TotalFalsePositives = 0
 n_errors = 10
-n_cycles = 100
+n_cycles = 1000
 detectionThreshold = 0.999
 Results = []
 

@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import random
 
+random.seed(42)
+np.random.seed(42)
+
 def create_random_window(training_data_csv_path,window_size):
     df = pd.read_csv(training_data_csv_path)
     data = df.to_numpy()
@@ -93,7 +96,7 @@ TotalErrors = 0
 TotalCorrectDetections = 0
 TotalFalsePositives = 0
 n_errors = 20
-n_cycles = 100
+n_cycles = 1000
 detectionThreshold = 0.999
 Results = []
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -101,7 +104,7 @@ training_data_csv_path = os.path.join(BASE_DIR, '..', 'testing_data.csv')
 model_path = os.path.join(BASE_DIR, 'ver1.keras')
 model = tf.keras.models.load_model(model_path)
 for i in range(0, n_cycles):    
-    correct_detections, false_positives = PredictionBenchmark(model,training_data_csv_path,window_size=60,n_errors=10, detect_thresh=0.9999)
+    correct_detections, false_positives = PredictionBenchmark(model,training_data_csv_path,window_size=60,n_errors=20, detect_thresh=0.9999)
     print(f"Cycle {i}: {correct_detections} correct detections")
     Results.append(correct_detections)
     TotalErrors += n_errors
