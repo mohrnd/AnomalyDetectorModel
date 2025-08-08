@@ -16,9 +16,7 @@ def create_random_window(training_data_csv_path,window_size):
 def inject_binary_flip_errors(training_data_csv_path,window_size=60, n_errors=100):
     # Select and initialise a random window from the training data
     window_df = create_random_window(training_data_csv_path, window_size)
-
     data = window_df.to_numpy()
-    
     n_rows, n_cols = data.shape
     error_locations = set()
 
