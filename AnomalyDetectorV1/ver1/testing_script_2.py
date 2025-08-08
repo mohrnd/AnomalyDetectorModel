@@ -69,11 +69,11 @@ def PredictionBenchmark(model, training_data_csv_path, window_size=60, n_errors=
     print(f"  Nodes with error > {detect_thresh}: {len(high_errors)}")
 
     # Threshold distribution
-    thresholds = [0.1, 0.5, 1.0, 2.0, 5.0]
+    thresholds = [0.99, 0.999, 0.9999, 0.99999]
     print("\n📊 Threshold-based error distribution:")
     for t in thresholds:
         count = sum(err > t for _, _, err in row_col_errors)
-        print(f"  > {t:.1f}: {count} nodes")
+        print(f"  > {t:.5f}: {count} nodes")
 
     # Detection logic
     correct_detections, false_positives = 0, 0
@@ -94,7 +94,7 @@ def PredictionBenchmark(model, training_data_csv_path, window_size=60, n_errors=
 TotalErrors = 0
 TotalCorrectDetections = 0
 TotalFalsePositives = 0
-n_errors = 20
+n_errors = 10
 n_cycles = 100
 detectionThreshold = 0.999
 Results = []
