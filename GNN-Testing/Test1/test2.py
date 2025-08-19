@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 from keras.saving import register_keras_serializable
 
-# Enable GPU memory growth and mixed precision
+# Enable GPU memory growth
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:
@@ -67,7 +67,7 @@ class MessagePassing(tf.keras.layers.Layer):
 
 @register_keras_serializable()
 class IndustrialGNN(tf.keras.Model):
-    def __init__(self, node_types: List[str], embedding_dim: int = 32, num_gnn_layers: int = 2, edge_dim: int = 3):
+    def __init__(self, node_types: List[str], embedding_dim: int = 64, num_gnn_layers: int = 2, edge_dim: int = 3):
         super(IndustrialGNN, self).__init__()
         self.node_types = node_types
         self.embedding_dim = embedding_dim
@@ -161,13 +161,13 @@ def train_model():
     print(f"Node assignments: {node_assignments}")
 
     node_types = ['PLC', 'Sensor', 'Actuator']
-    model = IndustrialGNN(node_types=node_types, embedding_dim=32, num_gnn_layers=2)
+    model = IndustrialGNN(node_types=node_types, embedding_dim=64, num_gnn_layers=2)
     adjacency_matrix, node_type_indices = model.create_graph_structure(node_assignments)
 
     assert len(variable_names) == len(node_type_indices), "Mismatch between variables and node type indices"
     num_nodes = len(variable_names)
 
-    node_values = np.mean(windowed_data, axis=1)
+    node_values = np.mean(windowed_data, axis=1) # ERROR HERE, it is averaging all of the values in the 2 sec timeframe
     node_values = np.expand_dims(node_values, axis=-1)
 
     dataset = tf.data.Dataset.from_tensor_slices({
@@ -192,7 +192,7 @@ def train_model():
         return loss
 
     print("Starting training...")
-    for epoch in tqdm(range(25)):
+    for epoch in tqdm(range(40)):
         total_loss = 0.0
         for batch in dataset:
             loss = train_step(batch['node_values'])
